@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:project1/pages/home_page.dart';
+import 'package:project1/model/cart_model.dart';
+
+import 'package:project1/pages/intro_page.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,11 +13,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const homePage(),
-      theme:
-          ThemeData(brightness: Brightness.dark, primarySwatch: Colors.orange),
+    return ChangeNotifierProvider(
+      create: (context) => CartModel(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: introPage(),
+      ),
     );
   }
 }

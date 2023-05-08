@@ -1,124 +1,93 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:project1/pages/util/coffee_tile.dart';
-import 'package:project1/pages/util/coffee_type.dart';
+import 'package:project1/model/cart_model.dart';
+import 'package:provider/provider.dart';
 
-class homePage extends StatefulWidget {
-  const homePage({super.key});
+import '../components/grocery_item_tile.dart';
+import 'cart_page.dart';
 
-  @override
-  State<homePage> createState() => _homePageState();
-}
-
-class _homePageState extends State<homePage> {
-  final List coffeeType = [
-    ["Ice Coffee", true],
-    ["Latte", false],
-    ["Turkish Coffee", false],
-  ];
-
-  void coffeeTypeSelected(int index) {
-    setState(() {
-      for (int i = 0; i < coffeeType.length; i++) {
-        coffeeType[i][1] = false;
-      }
-      coffeeType[index][1] = true;
-    });
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.grey[900],
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          leading: Icon(
-            Icons.menu,
-            size: 30,
-          ),
-          actions: [
+    return SafeArea(
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return CartPage();
+            },
+          )),
+          backgroundColor: Colors.black,
+          child: Icon(Icons.shopping_bag),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 40),
             Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: Icon(
-                Icons.person,
-                size: 30,
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Text(
+                "Good morning,",
+                style: TextStyle(fontSize: 20),
               ),
-            )
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Text(
+                "Let's order fresh items for you",
+                style: TextStyle(
+                  fontFamily: "Bebas Neue",
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Divider(
+                thickness: 5,
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                "Fresh items",
+                style: TextStyle(fontSize: 15),
+              ),
+            ),
+            Expanded(child: Consumer<CartModel>(
+              builder: (context, value, child) {
+                return GridView.builder(
+                  itemCount: value.shopItems.length,
+                  padding: EdgeInsets.all(8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      childAspectRatio: 1 / 1.3, crossAxisCount: 2),
+                  itemBuilder: (context, index) {
+                    return GroceryItemTile(
+                      itemName: value.shopItems[index][0],
+                      itemPrice: value.shopItems[index][1],
+                      imagePath: value.shopItems[index][2],
+                      color: value.shopItems[index][3],
+                      onPressed: () {
+                        Provider.of<CartModel>(context, listen: false)
+                            .addItemToCart(index);
+                      },
+                    );
+                  },
+                );
+              },
+            ))
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: ""),
-        ]),
-        // find the best coffee for you
-        body: Column(children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: Text(
-              "Find the best coffee for you",
-              style: TextStyle(fontFamily: "BebasNeue", fontSize: 45),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.grey.shade600,
-                ),
-                hintText: "Find your coffee..",
-                enabledBorder: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.orange.shade400)),
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          Container(
-            height: 50,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: coffeeType.length,
-                itemBuilder: ((context, index) {
-                  return CoffeeType(
-                      coffeeType: coffeeType[index][0],
-                      isSelected: coffeeType[index][1],
-                      onTap: (() {
-                        coffeeTypeSelected(index);
-                      }));
-                })),
-          ),
-          SizedBox(height: 10),
-          Expanded(
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                CoffeeTile(
-                  coffeeImagePath: "lib/images/icecoffee.jpg",
-                  coffeeName: "Ice Coffee",
-                  coffeePrice: "4.20",
-                ),
-                CoffeeTile(
-                  coffeeImagePath: "lib/images/lattee.jpg",
-                  coffeeName: "Latte",
-                  coffeePrice: "5.50",
-                ),
-                CoffeeTile(
-                  coffeeImagePath: "lib/images/turkishcoffee.jpg",
-                  coffeeName: "Turkish Coffee",
-                  coffeePrice: "6.00",
-                ),
-              ],
-            ),
-          ),
-        ]));
+      ),
+    );
   }
 }
